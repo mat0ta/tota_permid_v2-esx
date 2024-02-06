@@ -1,0 +1,16 @@
+{
+    "token": "YOUR_TOKEN",
+    "client_id": "YOUR_BOT_ID",
+    "guild_id": "YOUR_SERVER_ID",
+    "prefix": "!",
+    "logo":  "",
+    "hex_color": "#0099ff", 
+    "community_name": "TOTA NETWORK",
+    "staff_roles": ["YOUR_STAFF_ROLES_ID"],
+
+    "database_host": "localhost",
+    "database_user": "root",
+    "database_password": "",
+    "database_base": "YOUR_DB_NAME"
+
+}

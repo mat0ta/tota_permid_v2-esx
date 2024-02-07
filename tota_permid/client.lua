@@ -100,7 +100,6 @@ AddEventHandler("tota:client:getId", function(playerPermId, tempId, done)
                             DrawMarker(2, x2, y2, z2+0.9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.08, 0.2, 0.08, 0, 255, 0, 155, false, false, false, true, false, false, false)
                         end
                         else
-                            print(playerPermIds[server_id])
                             DrawText3D(x2, y2, z2+1, GetPlayerServerId(id).. " | ".. playerPermIds[server_id], 186,186,186)
                         end
                         elseif (playerDistances[id] < 25) then

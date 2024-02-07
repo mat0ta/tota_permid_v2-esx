@@ -40,7 +40,6 @@ function getUserTempId(permId, xPlayer, item, count)
                         id = string.match(id, ":(.*)")
                     else
                         id = string.match(v, ":(.*)")
-                        print(id)
                     end
                     processPermId(id, item, count)
                     return

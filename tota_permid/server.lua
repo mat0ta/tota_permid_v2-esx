@@ -19,7 +19,7 @@ AddEventHandler('tota:server:displayid', function(source, permId, cb)
 	steamId = identifier
 	checkDiscord(source, steamId)
 
-    MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(identifier),':',1)) = '" .. steamId .. "'  AND LENGTH(permid) > 0", {}, function(result)
+    MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(" .. Config.LicenseCollumName .."),':',1)) = '" .. steamId .. "'  AND LENGTH(permid) > 0", {}, function(result)
     	if result[1] == nil then
 			checkForDuplicates(source, steamId)
 		end
@@ -33,7 +33,7 @@ function checkForDuplicates(source, steamId)
             if Config.Debug then  print("Duplicate permId: " .. number .. ". Retrying with a new ID.") end
             checkForDuplicates(source, steamId)
         else
-            MySQL.Async.fetchAll("UPDATE users SET permid = '" .. number .. "' WHERE REVERSE(SUBSTRING_INDEX(REVERSE(identifier),':',1)) = '" .. steamId .. "'", {}, function(result)
+            MySQL.Async.fetchAll("UPDATE users SET permid = '" .. number .. "' WHERE REVERSE(SUBSTRING_INDEX(REVERSE(" .. Config.LicenseCollumName .."),':',1)) = '" .. steamId .. "'", {}, function(result)
 				if Config.Debug then print("New ID: " .. number) end
 				TriggerClientEvent("tota:client:updatePermIdTable", source, number)
 			end)
@@ -51,7 +51,7 @@ function checkDiscord(source, steamId)
 			if string.match(GetPlayerIdentifier(source, i), "discord") then
 				discord = GetPlayerIdentifier(source, i)
 				id = string.sub(discord, 9, -1)
-				MySQL.Async.fetchAll("UPDATE users SET discord = '"..id.."' WHERE REVERSE(SUBSTRING_INDEX(REVERSE(identifier),':',1)) = '"..steamId.."'", {}, function(result) end)
+				MySQL.Async.fetchAll("UPDATE users SET discord = '"..id.."' WHERE REVERSE(SUBSTRING_INDEX(REVERSE(" .. Config.LicenseCollumName .."),':',1)) = '"..steamId.."'", {}, function(result) end)
 			end
 		end
 	end
@@ -75,7 +75,7 @@ AddEventHandler('tota:server:getAllIds', function(source)
 		for k,v in pairs(GetPlayerIdentifiers(y)) do
 			if string.sub(v, 1, string.len("license:")) == "license:" then
 				identifier = string.sub(v, 9)
-				MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(identifier),':',1)) = '"..identifier.."'", {}, function(result)
+				MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(" .. Config.LicenseCollumName .."),':',1)) = '"..identifier.."'", {}, function(result)
 					permanentId = result[1].permid
 					TriggerClientEvent('tota:client:updatePermIdTable', y, y, permanentId)
 				end)
@@ -97,7 +97,7 @@ ESX.RegisterServerCallback('tota:server:getUserPermId', function(source, cb, tem
 	
 	steamId = identifier 
 
-	MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(identifier),':',1)) = '"..steamId.."'", {}, function(result)
+	MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(" .. Config.LicenseCollumName .."),':',1)) = '"..steamId.."'", {}, function(result)
 		permanentId = result[1].permid
 		cb(permanentId)
 		return
@@ -108,13 +108,13 @@ RegisterCommand(Config.Command, function(source, args)
 	local identifier = ""
 	TriggerEvent('tota:server:displayid', source)
 	TriggerClientEvent("tota:client:notId", source)
-	for k,v in pairs(GetPlayerIdentifiers(source))do
+	for k,v in pairs(GetPlayerIdentifiers(source)) do
 		if string.sub(v, 1, string.len("license:")) == "license:" then
 			identifier = string.sub(v, 9)
 		end
 	end
 	steamId = identifier
-	MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(identifier),':',1)) = '"..steamId.."'", {}, function(result)
+	MySQL.Async.fetchAll("SELECT permid FROM users WHERE REVERSE(SUBSTRING_INDEX(REVERSE(" .. Config.LicenseCollumName .."),':',1)) = '"..steamId.."'", {}, function(result)
 		permanentId = result[1].permid
 		tempId = source
 		TriggerClientEvent("tota:client:getId", source, permanentId, tempId, 1)

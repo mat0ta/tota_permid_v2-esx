@@ -29,18 +29,11 @@ function processPermId(identifier, item, count)
 end
 
 function getUserTempId(permId, xPlayer, item, count)
-    MySQL.Async.fetchAll("SELECT identifier FROM users WHERE `permid` = '" .. permId .. "'", {}, function(result)
+    MySQL.Async.fetchAll("SELECT " .. Config.LicenseCollumName .. " FROM users WHERE `permid` = '" .. permId .. "'", {}, function(result)
         if result[1] ~= nil then
             for k,v in pairs(result[1]) do
-                if string.sub(v, 1, string.len("char")) == "char" then
-                    local count = select(2, v:gsub(":", ""))
-                    local id
-                    if count > 1 then
-                        id = string.match(v, ":(.*)")
-                        id = string.match(id, ":(.*)")
-                    else
-                        id = string.match(v, ":(.*)")
-                    end
+                if string.sub(v, 1, string.len("char")) == "char" or string.sub(v, 1, string.len("license:")) == "license:" then
+                    id = string.match(v, ":(.*)")
                     processPermId(id, item, count)
                     return
                 end

@@ -33,7 +33,16 @@ function getUserTempId(permId, xPlayer, item, count)
         if result[1] ~= nil then
             for k,v in pairs(result[1]) do
                 if string.sub(v, 1, string.len("char")) == "char" then
-                    processPermId(string.sub(v, 7), item, count)
+                    local count = select(2, v:gsub(":", ""))
+                    local id
+                    if count > 1 then
+                        id = string.match(v, ":(.*)")
+                        id = string.match(id, ":(.*)")
+                    else
+                        id = string.match(v, ":(.*)")
+                        print(id)
+                    end
+                    processPermId(id, item, count)
                     return
                 end
             end

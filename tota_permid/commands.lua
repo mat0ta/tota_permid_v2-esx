@@ -32,7 +32,7 @@ function getUserTempId(permId, xPlayer, item, count)
     MySQL.Async.fetchAll("SELECT identifier FROM users WHERE `permid` = '" .. permId .. "'", {}, function(result)
         if result[1] ~= nil then
             for k,v in pairs(result[1]) do
-                if string.sub(v, 1, string.len("char1:")) == "char1:" then
+                if string.sub(v, 1, string.len("char")) == "char" then
                     processPermId(string.sub(v, 7), item, count)
                     return
                 end

@@ -5,7 +5,6 @@ AddEventHandler('esx:playerLoaded', function(source)
     if Config.Debug then print("[tota_permId]: Player Loaded") end
     TriggerEvent('tota:server:displayid', source)
 	Wait(1000)
-	checkDiscord(source)
 end)
 
 RegisterServerEvent('tota:server:displayid')
@@ -17,9 +16,10 @@ AddEventHandler('tota:server:displayid', function(source, permId, cb)
 		Wait(1000)
 	end
 
-	steamId = "char1:" .. identifier
+	steamId = identifier
+	checkDiscord(source, steamId)
 
-    MySQL.Async.fetchAll("SELECT permid FROM users WHERE `identifier` = '" .. steamId .. "'  AND LENGTH(permid) > 1", {}, function(result)
+    MySQL.Async.fetchAll("SELECT permid FROM users WHERE SUBSTRING_INDEX(identifier,':',-1) = '" .. steamId .. "'  AND LENGTH(permid) > 0", {}, function(result)
     	if result[1] == nil then
 			checkForDuplicates(source, steamId)
 		end
@@ -31,9 +31,9 @@ function checkForDuplicates(source, steamId)
     MySQL.Async.fetchAll("SELECT permid FROM users WHERE `permid` = '" .. number .. "'", {}, function(result)
         if result and #result > 0 then
             if Config.Debug then  print("Duplicate permId: " .. number .. ". Retrying with a new ID.") end
-            checkForDuplicates(steamId)
+            checkForDuplicates(source, steamId)
         else
-            MySQL.Async.fetchAll("UPDATE users SET permid = '" .. number .. "' WHERE `identifier` = '" .. steamId .. "'", {}, function(result)
+            MySQL.Async.fetchAll("UPDATE users SET permid = '" .. number .. "' WHERE SUBSTRING_INDEX(identifier,':',-1) = '" .. steamId .. "'", {}, function(result)
 				if Config.Debug then print("New ID: " .. number) end
 				TriggerClientEvent("tota:client:updatePermIdTable", source, number)
 			end)
@@ -41,17 +41,17 @@ function checkForDuplicates(source, steamId)
     end)
 end
 
-function checkDiscord(source)
+function checkDiscord(source, steamId)
 	local discord = ""
 	local id = ""
-		
+	
 	identifiers = GetNumPlayerIdentifiers(source)
 	for i = 0, identifiers + 1 do
 		if GetPlayerIdentifier(source, i) ~= nil then
 			if string.match(GetPlayerIdentifier(source, i), "discord") then
 				discord = GetPlayerIdentifier(source, i)
 				id = string.sub(discord, 9, -1)
-				MySQL.Async.fetchAll("UPDATE users SET discord = '"..id.."' WHERE `identifier` = '"..steamId.."'", {}, function(result) end)
+				MySQL.Async.fetchAll("UPDATE users SET discord = '"..id.."' WHERE SUBSTRING_INDEX(identifier,':',-1) = '"..steamId.."'", {}, function(result) end)
 			end
 		end
 	end
@@ -74,8 +74,8 @@ AddEventHandler('tota:server:getAllIds', function(source)
 	for x, y in pairs(ESX.GetPlayers()) do
 		for k,v in pairs(GetPlayerIdentifiers(y)) do
 			if string.sub(v, 1, string.len("license:")) == "license:" then
-				identifier = "char1:" .. string.sub(v, 9)
-				MySQL.Async.fetchAll("SELECT permid FROM users WHERE `identifier` = '"..identifier.."'", {}, function(result)
+				identifier = string.sub(v, 9)
+				MySQL.Async.fetchAll("SELECT permid FROM users WHERE SUBSTRING_INDEX(identifier,':',-1) = '"..identifier.."'", {}, function(result)
 					permanentId = result[1].permid
 					TriggerClientEvent('tota:client:updatePermIdTable', y, y, permanentId)
 				end)
@@ -95,9 +95,9 @@ ESX.RegisterServerCallback('tota:server:getUserPermId', function(source, cb, tem
 		end
 	end
 	
-	steamId = "char1:" .. identifier 
+	steamId = identifier 
 
-	MySQL.Async.fetchAll("SELECT permid FROM users WHERE `identifier` = '"..steamId.."'", {}, function(result)
+	MySQL.Async.fetchAll("SELECT permid FROM users WHERE SUBSTRING_INDEX(identifier,':',-1) = '"..steamId.."'", {}, function(result)
 		permanentId = result[1].permid
 		cb(permanentId)
 		return
@@ -113,8 +113,8 @@ RegisterCommand(Config.Command, function(source, args)
 			identifier = string.sub(v, 9)
 		end
 	end
-	steamId = "char1:" .. identifier
-	MySQL.Async.fetchAll("SELECT permid FROM users WHERE `identifier` = '"..steamId.."'", {}, function(result)
+	steamId = identifier
+	MySQL.Async.fetchAll("SELECT permid FROM users WHERE SUBSTRING_INDEX(identifier,':',-1) = '"..steamId.."'", {}, function(result)
 		permanentId = result[1].permid
 		tempId = source
 		TriggerClientEvent("tota:client:getId", source, permanentId, tempId, 1)
